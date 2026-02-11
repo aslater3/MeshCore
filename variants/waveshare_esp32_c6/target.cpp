@@ -101,6 +101,8 @@ bool radio_init() {
   if (status == RADIOLIB_ERR_NONE) {
     radio.setCRC(2);
     radio.explicitHeader();
+    // Force LR1121 to remain on HP PA path even at lower configured dBm values.
+    radio.setOutputPower((int8_t)LORA_TX_POWER, true);
   #if defined(RF_SWITCH_TABLE)
     radio.setRfSwitchTable(rfswitch_dios, rfswitch_table);
   #endif
@@ -153,7 +155,11 @@ void radio_set_tx_power(uint8_t dbm) {
 #if WAVESHARE_ALLOW_NO_RADIO
   if (!radio_available) return;
 #endif
+  #if WAVESHARE_RADIO_LR11X0
+  radio.setOutputPower((int8_t)dbm, true);
+  #else
   radio.setOutputPower(dbm);
+  #endif
 }
 
 mesh::LocalIdentity radio_new_identity() {
